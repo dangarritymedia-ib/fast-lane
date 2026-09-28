@@ -1,4 +1,4 @@
-# Fast Lane
+# Fitness Tracker
 
 Personal fasting, weigh-in and workout tracker with a points-based weekly score.
 

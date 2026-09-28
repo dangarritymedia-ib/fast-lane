@@ -1,6 +1,6 @@
 {
-  "name": "Fast Lane",
-  "short_name": "Fast Lane",
+  "name": "Fitness Tracker",
+  "short_name": "Fitness",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0F1523",

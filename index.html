@@ -7,11 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Fast Lane">
+<meta name="apple-mobile-web-app-title" content="Fitness Tracker">
 <link rel="apple-touch-icon" href="icon-512.png">
 <link rel="icon" href="icon-512.png">
 <link rel="manifest" href="manifest.json">
-<title>Fast Lane</title>
+<title>Fitness Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap">
@@ -20,8 +20,8 @@
   color-scheme: dark;
   --bg:#0F1523; --surface:#182033; --surface2:#212B42; --line:#2E3A55;
   --text:#EEF2F8; --muted:#8E9BB5; --faint:#5C6883;
-  --accent:#FFB020; --accent-ink:#1A1204;
-  --run:#38C6F4; --lift:#C58CFF; --good:#34D399; --bad:#F87171;
+  --accent:#67AEDC; --accent-ink:#04203A; --brand:#015EA4; --accent-2:#8CC4E8;
+  --run:#FF9F5A; --lift:#C58CFF; --good:#34D399; --bad:#F87171;
   --display:"Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
   --body:"Barlow", "Segoe UI", system-ui, sans-serif;
   --r:14px;
@@ -42,10 +42,13 @@ button{cursor:pointer}
 .sync i{width:8px;height:8px;border-radius:50%;background:var(--faint)}
 .sync.synced i{background:var(--good)} .sync.saving i,.sync.syncing i{background:var(--accent)} .sync.offline i,.sync.local i{background:var(--faint)} .sync.auth i,.sync.norepo i,.sync.nowrite i{background:var(--bad)}
 @media (max-width:420px){.sync span{display:none}}
-.brand{white-space:nowrap;font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:.02em;text-transform:uppercase;font-style:italic;display:flex;align-items:center;gap:8px}
-.brand i{display:inline-block;width:22px;height:14px;background:repeating-linear-gradient(115deg,var(--accent) 0 4px,transparent 4px 7px)}
+.brand{white-space:nowrap;font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:.03em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.brand .logo{height:30px;width:auto;flex:none}
+@media (max-width:420px){.brand{font-size:20px;gap:8px}.brand .logo{height:24px}}
 .chip-score{font-family:var(--display);font-weight:700;font-size:18px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px;display:flex;gap:6px;align-items:baseline}
 .chip-score b{color:var(--accent);font-size:20px}
+.chip-score{white-space:nowrap}
+@media (max-width:420px){.chip-score{padding:4px 10px;font-size:15px}.chip-score b{font-size:18px}.chip-score small{font-size:12px}}
 .chip-score small{color:var(--muted);font-size:14px}
 
 .banner{background:#3a2a0a;color:#FFD68A;border:1px solid #6b4c12;border-radius:10px;padding:8px 12px;margin-top:12px;font-size:14px}
@@ -60,7 +63,7 @@ h2.big{font-family:var(--display);font-weight:800;font-size:30px;margin:0;line-h
 .muted{color:var(--muted)}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .btn{border:0;border-radius:12px;padding:12px 18px;font-weight:700;background:var(--surface2);border:1px solid var(--line)}
-.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-family:var(--display);font-size:20px;letter-spacing:.04em;text-transform:uppercase}
+.btn.primary{background:linear-gradient(180deg,var(--accent-2),var(--accent));color:var(--accent-ink);border-color:var(--accent);font-family:var(--display);font-size:20px;letter-spacing:.04em;text-transform:uppercase}
 .btn.ghost{background:transparent}
 .btn.small{padding:6px 10px;font-size:13px;border-radius:9px}
 .btn.danger{color:var(--bad)}
@@ -106,7 +109,7 @@ input[type=number]{width:120px}
 .score b{font-size:64px;font-weight:800;line-height:.9}
 .score span{font-size:24px;color:var(--muted);font-weight:700}
 .bar{height:14px;background:var(--surface2);border-radius:999px;overflow:hidden;margin:12px 0 6px;position:relative}
-.bar i{display:block;height:100%;background:repeating-linear-gradient(115deg,var(--accent) 0 10px,#FFC24D 10px 20px);border-radius:999px;transition:width .6s}
+.bar i{display:block;height:100%;background:repeating-linear-gradient(115deg,var(--accent) 0 10px,var(--accent-2) 10px 20px);border-radius:999px;transition:width .6s}
 .bar.won i{background:repeating-linear-gradient(115deg,var(--good) 0 10px,#5EE6AE 10px 20px)}
 .chals{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
 .chal{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;display:flex;justify-content:space-between;gap:8px;align-items:center}
@@ -215,7 +218,7 @@ html,body{margin:0}
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="brand"><i></i>Fast Lane</div>
+    <div class="brand"><svg class="logo" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="80 60 1502 946"><path fill="#015EA4" d="M86 122H241V67H583V122H948L1234 404V727H1079V466L886 276H241V847H432L588 1000H183L86 907Z"/><path fill="#67AEDC" d="M428 396H583V658L776 847H1421V724H1328V570H1576V1000H712L428 720Z"/><path fill="#67AEDC" d="M1073 122H1478L1576 217V478H1421V276H1229Z"/></svg><span>Fitness Tracker</span></div>
     <div class="hdr-r"><div class="sync" id="syncStat"><i></i><span></span></div><div class="chip-score num" id="hdrScore"></div></div>
   </header>
   <div id="banner"></div>
@@ -464,8 +467,8 @@ function confetti(){
   if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const c = document.getElementById('confetti'); c.hidden=false;
   const x = c.getContext('2d'); const W = c.width = innerWidth*devicePixelRatio, H = c.height = innerHeight*devicePixelRatio;
-  const cols = ['#FFB020','#38C6F4','#C58CFF','#34D399','#EEF2F8'];
-  const P = Array.from({length:160},()=>({x:W/2,y:H*0.45,vx:(Math.random()-.5)*W*0.025,vy:-Math.random()*H*0.03-H*0.005,r:Math.random()*6+4,c:cols[Math.random()*5|0],a:Math.random()*6}));
+  const cols = ['#67AEDC','#015EA4','#FF9F5A','#C58CFF','#34D399','#EEF2F8'];
+  const P = Array.from({length:160},()=>({x:W/2,y:H*0.45,vx:(Math.random()-.5)*W*0.025,vy:-Math.random()*H*0.03-H*0.005,r:Math.random()*6+4,c:cols[Math.random()*cols.length|0],a:Math.random()*6}));
   let f=0; (function step(){ x.clearRect(0,0,W,H); for(const p of P){ p.x+=p.vx; p.y+=p.vy; p.vy+=H*0.0009; p.a+=.15; x.save(); x.translate(p.x,p.y); x.rotate(p.a); x.fillStyle=p.c; x.fillRect(-p.r,-p.r/2,p.r*2*devicePixelRatio/1.5,p.r*devicePixelRatio/1.5); x.restore(); } if(++f<150) requestAnimationFrame(step); else { x.clearRect(0,0,W,H); c.hidden=true; } })();
 }
 const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
