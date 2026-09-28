@@ -2,7 +2,7 @@
 
 Personal fasting, weigh-in and workout tracker with a points-based weekly score.
 
-- **App (this repo, public):** `index.html`, `manifest.json`, `icon-512.png`, served by GitHub Pages.
+- **App (this repo, public):** `index.html`, `manifest.json`, the `icon-ft-*.png` files, served by GitHub Pages.
 - **Data (separate private repo):** a single `data.json`, written by the app through the GitHub API.
   This repo never holds any personal data.
 
