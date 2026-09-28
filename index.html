@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0F1523">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fast Lane">
+<link rel="apple-touch-icon" href="icon-512.png">
+<link rel="icon" href="icon-512.png">
+<link rel="manifest" href="manifest.json">
+<title>Fast Lane</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#0F1523; --surface:#182033; --surface2:#212B42; --line:#2E3A55;
+  --text:#EEF2F8; --muted:#8E9BB5; --faint:#5C6883;
+  --accent:#FFB020; --accent-ink:#1A1204;
+  --run:#38C6F4; --lift:#C58CFF; --good:#34D399; --bad:#F87171;
+  --display:"Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --body:"Barlow", "Segoe UI", system-ui, sans-serif;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--text);font-family:var(--body);font-size:15px;line-height:1.45;padding:0 16px;padding-block:0 calc(84px + env(safe-area-inset-bottom,0px));-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.wrap{max-width:1080px;margin:0 auto}
+
+/* header */
+.top{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:calc(14px + env(safe-area-inset-top,0px)) 12px;border-bottom:1px solid var(--line)}
+.hdr-r{display:flex;align-items:center;gap:10px}
+.sync{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap}
+.sync i{width:8px;height:8px;border-radius:50%;background:var(--faint)}
+.sync.synced i{background:var(--good)} .sync.saving i,.sync.syncing i{background:var(--accent)} .sync.offline i,.sync.local i{background:var(--faint)} .sync.auth i,.sync.norepo i{background:var(--bad)}
+@media (max-width:420px){.sync span{display:none}}
+.brand{white-space:nowrap;font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:.02em;text-transform:uppercase;font-style:italic;display:flex;align-items:center;gap:8px}
+.brand i{display:inline-block;width:22px;height:14px;background:repeating-linear-gradient(115deg,var(--accent) 0 4px,transparent 4px 7px)}
+.chip-score{font-family:var(--display);font-weight:700;font-size:18px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px;display:flex;gap:6px;align-items:baseline}
+.chip-score b{color:var(--accent);font-size:20px}
+.chip-score small{color:var(--muted);font-size:14px}
+
+.banner{background:#3a2a0a;color:#FFD68A;border:1px solid #6b4c12;border-radius:10px;padding:8px 12px;margin-top:12px;font-size:14px}
+
+/* layout */
+main{padding-block:16px}
+.grid{display:grid;gap:14px;grid-template-columns:1fr}
+@media (min-width:820px){.grid.two{grid-template-columns:1fr 1fr}.span2{grid-column:1/-1}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.label{font-family:var(--display);font-weight:700;font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+h2.big{font-family:var(--display);font-weight:800;font-size:30px;margin:0;line-height:1.05;text-wrap:balance}
+.muted{color:var(--muted)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:700;background:var(--surface2);border:1px solid var(--line)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-family:var(--display);font-size:20px;letter-spacing:.04em;text-transform:uppercase}
+.btn.ghost{background:transparent}
+.btn.small{padding:6px 10px;font-size:13px;border-radius:9px}
+.btn.danger{color:var(--bad)}
+.btn.block{width:100%}
+input[type=number],input[type=text],input[type=datetime-local],select{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+input[type=number]{width:120px}
+
+/* fast timer */
+.fast{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+@media (max-width:420px){.fast{grid-template-columns:1fr;justify-items:center;text-align:center}}
+.ring{position:relative;width:170px;height:170px}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .track{stroke:var(--surface2)}
+.ring .prog{stroke:var(--accent);transition:stroke-dashoffset .6s}
+.ring.done .prog{stroke:var(--good)}
+.ring .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .t{font-family:var(--display);font-weight:800;font-size:38px;line-height:1}
+.ring .s{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+.miles{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.mile{font-family:var(--display);font-weight:700;font-size:14px;border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--muted)}
+.mile.on{color:var(--good);border-color:var(--good)}
+
+/* quick log */
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg button{border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:12px;font-family:var(--display);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px}
+.seg button svg{width:24px;height:24px}
+.seg button.on.run{border-color:var(--run);color:var(--run);background:color-mix(in srgb,var(--run) 12%,var(--bg))}
+.seg button.on.lift{border-color:var(--lift);color:var(--lift);background:color-mix(in srgb,var(--lift) 12%,var(--bg))}
+.mins{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.mins button{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 0;font-family:var(--display);font-weight:700;font-size:19px}
+.mins button small{font-size:12px;color:var(--muted);margin-left:1px}
+.mins button.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.mins button.on small{color:var(--bg)}
+
+.logs{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.log{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.log svg{width:20px;height:20px;flex:none}
+.log .grow{flex:1}
+.log .pts{font-family:var(--display);font-weight:700;color:var(--accent)}
+
+/* scoreboard */
+.score{display:flex;align-items:baseline;gap:8px;font-family:var(--display)}
+.score b{font-size:64px;font-weight:800;line-height:.9}
+.score span{font-size:24px;color:var(--muted);font-weight:700}
+.bar{height:14px;background:var(--surface2);border-radius:999px;overflow:hidden;margin:12px 0 6px;position:relative}
+.bar i{display:block;height:100%;background:repeating-linear-gradient(115deg,var(--accent) 0 10px,#FFC24D 10px 20px);border-radius:999px;transition:width .6s}
+.bar.won i{background:repeating-linear-gradient(115deg,var(--good) 0 10px,#5EE6AE 10px 20px)}
+.chals{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+.chal{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:14px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.chal b{font-family:var(--display);font-size:17px}
+.chal.ok{border-color:var(--good);color:var(--good)}
+.strip{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px}
+.sd{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:6px 2px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px}
+.sd .dw{font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.sd svg{width:20px;height:20px}
+.sd.today{border-color:var(--accent)}
+.sd .p{font-family:var(--display);font-size:14px;font-weight:700}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.stat b{display:block;font-family:var(--display);font-weight:800;font-size:30px;line-height:1}
+.stat span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.xp{height:8px;background:var(--surface2);border-radius:999px;overflow:hidden;margin-top:6px}
+.xp i{display:block;height:100%;background:var(--lift)}
+.reward{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:10px;font-size:14px}
+
+/* icons color */
+.i-run{color:var(--run)} .i-lift{color:var(--lift)}
+.i-run svg,.i-lift svg{width:18px;height:18px}
+.planned{opacity:.35}
+.missed{opacity:.5;color:var(--bad)!important}
+
+/* calendar */
+.calbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.tabs3{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px}
+.tabs3 button{border:0;background:transparent;padding:8px 14px;border-radius:9px;font-weight:700}
+.tabs3 button.on{background:var(--surface2);color:var(--accent)}
+.nav{display:flex;align-items:center;gap:6px}
+.nav button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-size:18px}
+.nav h3{font-family:var(--display);font-weight:800;font-size:22px;white-space:nowrap;margin:0 6px;min-width:0;text-transform:uppercase;letter-spacing:.02em}
+.month{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.mh{text-align:center;font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;padding:4px 0}
+.cell{background:var(--surface);border:1px solid var(--line);border-radius:10px;min-height:78px;padding:5px;text-align:left;display:flex;flex-direction:column;gap:3px;overflow:hidden;position:relative}
+.cell.out{opacity:.35}
+.cell.today{border-color:var(--accent)}
+.cell .dn{font-family:var(--display);font-weight:700;font-size:16px;line-height:1}
+.cell .fb{height:4px;border-radius:4px;background:transparent}
+.fb.hit{background:var(--good)} .fb.miss{background:var(--bad)} .fb.live{background:var(--accent)}
+.cell .ic{display:flex;gap:2px;flex-wrap:wrap}
+.cell .ic svg{width:16px;height:16px}
+.cell .wt{font-size:12px;font-weight:600}
+.cell .hv{font-size:11px;color:var(--muted)}
+.cell .cp{position:absolute;top:5px;right:6px;font-family:var(--display);font-size:12px;color:var(--accent);font-weight:700}
+@media (max-width:600px){.cell{min-height:64px;padding:4px}.cell .hv,.cell .cp{display:none}.cell .wt{font-size:10.5px}.cell .ic svg{width:14px;height:14px}}
+@media (min-width:820px){.cell{min-height:104px}}
+.weekhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.wlist{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.wrow{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:left;width:100%}
+.wrow.today{border-color:var(--accent)}
+.wrow .d{font-family:var(--display);font-weight:800;font-size:20px;line-height:1}
+.wrow .d small{display:block;font-size:12px;color:var(--muted);letter-spacing:.1em}
+.wrow .mid{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:14px}
+.wrow .mid svg{width:18px;height:18px;vertical-align:-4px}
+.wrow .pp{font-family:var(--display);font-weight:800;font-size:22px;color:var(--accent)}
+.tag{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--muted)}
+.tag.hit{color:var(--good);border-color:var(--good)} .tag.miss{color:var(--bad);border-color:var(--bad)}
+.metrics{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.metric{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px}
+.metric b{display:block;font-family:var(--display);font-size:24px;font-weight:800;line-height:1.1}
+.metric span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.fastedit{display:grid;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px}
+.fastedit label{font-size:12px;color:var(--muted);display:grid;gap:4px}
+.fastedit .row input{flex:1}
+
+/* charts */
+.chart svg{width:100%;height:auto;display:block}
+.chart .gl{stroke:var(--line);stroke-width:1}
+.chart .ax{fill:var(--muted);font-size:11px;font-family:var(--body)}
+.chart .band{fill:var(--good);opacity:.12}
+.chart .dot{fill:var(--muted)}
+.chart .avg{stroke:var(--accent);stroke-width:2.5;fill:none}
+.chart .end{fill:var(--accent)}
+.empty{color:var(--muted);font-size:14px;padding:18px 0}
+
+/* settings */
+.form{display:grid;gap:12px}
+.fr{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.fr label{font-size:14px}
+.plan{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.plan label{display:grid;gap:4px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+
+/* bottom nav */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line);padding:8px 16px calc(8px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center}
+.tabbar .in{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%;max-width:560px}
+.tabbar button{border:0;background:transparent;padding:6px 0;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted)}
+.tabbar button svg{width:24px;height:24px}
+.tabbar button.on{color:var(--accent)}
+
+/* toast + confetti */
+.toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);font-family:var(--display);font-weight:800;font-size:22px;padding:10px 20px;border-radius:999px;opacity:0;transition:.3s;pointer-events:none;z-index:20;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.win{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:rgba(8,12,20,.7);padding:16px}
+.win .box{background:var(--surface);border:2px solid var(--good);border-radius:20px;padding:28px 24px;text-align:center;max-width:360px}
+.win h2{font-family:var(--display);font-weight:800;font-size:44px;font-style:italic;text-transform:uppercase;color:var(--good);margin:0;line-height:1}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:31;width:100%;height:100%}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+[hidden]{display:none!important}
+img{max-width:100%}
+html,body{margin:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><i></i>Fast Lane</div>
+    <div class="hdr-r"><div class="sync" id="syncStat"><i></i><span></span></div><div class="chip-score num" id="hdrScore"></div></div>
+  </header>
+  <div id="banner"></div>
+  <main id="main"></main>
+</div>
+
+<nav class="tabbar"><div class="in" id="tabs"></div></nav>
+<div class="toast" id="toast"></div>
+<div id="winLayer"></div>
+<canvas id="confetti" hidden></canvas>
+
+<script>
+(() => {
+/* ---------- icons ---------- */
+const IC = {
+  run:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="15.5" cy="4.2" r="2" fill="currentColor" stroke="none"/><path d="M8 20.5l3.2-5 3 2.3v3.7"/><path d="M11.2 15.5l1.8-7-3.6 1.5-2 3"/><path d="M13 8.5l2.6 3.2 3.4.6"/></svg>',
+  lift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>',
+  today:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9.5 2.5h5"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
+  trend:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 18l5-6 4 3.5 7.5-9"/><path d="M15.5 6.5H20V11"/></svg>',
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.2"/><circle cx="10" cy="17" r="2.2"/></svg>'
+};
+const icon = (t, cls='') => `<span class="i-${t} ${cls}" style="display:inline-flex">${IC[t]}</span>`;
+
+/* ---------- defaults ---------- */
+const DEFAULTS = {
+  runPerMin:2, liftPerMin:4, fastMinHours:16, fastBase:30, fastPerHour:5, weighIn:10,
+  weeklyTarget:500, challengeBonus:25, fastsGoal:5, weighGoal:6,
+  plan:{1:'lift',2:'run',3:'run',4:'lift',5:'rest',6:'run',0:'rest'},
+  rewards:[{id:'r1', name:'New running shoes (example — edit in Settings)', weeks:8}],
+  goals:{weightLow:195,weightHigh:200,vo2Low:48,vo2High:50,hrvLow:75,hrvHigh:85,rhrLow:40,rhrHigh:44}
+};
+const MINS = [20,30,40,50,60,70,80,90];
+const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+/* ---------- state ---------- */
+const S = {
+  days:{}, fasts:{}, fastsByDay:{}, settings:structuredClone(DEFAULTS),
+  view:'today', calMode:'month', cursor:null, tapType:'lift', tapMin:30,
+  db:null, live:false
+};
+const st = () => S.settings;
+const firstKey = () => { const ks=[...Object.keys(S.days), ...Object.keys(S.fastsByDay)].sort(); return ks[0] || todayKey(); };
+const missCls = k => k < firstKey() ? 'planned hidden-miss' : 'missed';
+
+/* ---------- dates ---------- */
+const pad = n => String(n).padStart(2,'0');
+const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseKey = k => { const [y,m,d]=k.split('-').map(Number); return new Date(y,m-1,d); };
+const todayKey = () => keyOf(new Date());
+const addDays = (k,n) => { const d=parseKey(k); d.setDate(d.getDate()+n); return keyOf(d); };
+const weekStart = k => { const d=parseKey(k); const off=(d.getDay()+6)%7; d.setDate(d.getDate()-off); return keyOf(d); };
+const weekKeys = k => { const s=weekStart(k); return [0,1,2,3,4,5,6].map(i=>addDays(s,i)); };
+const fmtTime = ms => new Date(ms).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+const fmtDayShort = k => { const d=parseKey(k); return `${DOW[d.getDay()]} ${MON[d.getMonth()].slice(0,3)} ${d.getDate()}`; };
+const toLocalInput = ms => { const d=new Date(ms); return `${keyOf(d)}T${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const fromLocalInput = v => v ? new Date(v).getTime() : null;
+const hm = h => { const t=Math.max(0,Math.round(h*60)); return `${Math.floor(t/60)}h ${pad(t%60)}m`; };
+S.cursor = todayKey();
+
+/* ---------- scoring ---------- */
+const fastHours = f => ((f.end ?? Date.now()) - f.start)/36e5;
+function fastPts(f){
+  if(!f.end) return 0;
+  const h = fastHours(f);
+  if(h < st().fastMinHours) return 0;
+  return st().fastBase + Math.floor(h - st().fastMinHours) * st().fastPerHour;
+}
+const workoutPts = w => Math.round(w.min * (w.type==='lift' ? st().liftPerMin : st().runPerMin));
+const activeFast = () => Object.values(S.fasts).filter(f=>!f.end).sort((a,b)=>b.start-a.start)[0] || null;
+
+function dayInfo(k){
+  const day = S.days[k] || {};
+  const fasts = S.fastsByDay[k] || [];
+  const workouts = day.workouts || [];
+  const hasWeight = typeof day.weight === 'number';
+  const bestFast = fasts.reduce((m,f)=>Math.max(m,fastHours(f)),0);
+  const fastHit = fasts.some(f=>fastHours(f) >= st().fastMinHours);
+  const pts = fasts.reduce((s,f)=>s+fastPts(f),0) + workouts.reduce((s,w)=>s+workoutPts(w),0) + (hasWeight ? st().weighIn : 0);
+  return {k, day, fasts, workouts, hasWeight, weight:day.weight, bestFast, fastHit, pts,
+    lifts:workouts.filter(w=>w.type==='lift').length, runs:workouts.filter(w=>w.type==='run').length,
+    garmin: day.garmin || null, plan: st().plan[parseKey(k).getDay()] || 'rest'};
+}
+function planCounts(){ const v=Object.values(st().plan); return {lift:v.filter(x=>x==='lift').length, run:v.filter(x=>x==='run').length}; }
+function weekInfo(k){
+  const days = weekKeys(k).map(dayInfo);
+  const base = days.reduce((s,d)=>s+d.pts,0);
+  const lifts = days.reduce((s,d)=>s+d.lifts,0), runs = days.reduce((s,d)=>s+d.runs,0);
+  const fastsHit = days.filter(d=>d.fastHit).length, weighs = days.filter(d=>d.hasWeight).length;
+  const pc = planCounts();
+  const chals = [
+    {name:'Lifts', have:lifts, need:pc.lift},
+    {name:'Cardio', have:runs, need:pc.run},
+    {name:`${st().fastMinHours}h+ fasts`, have:fastsHit, need:st().fastsGoal},
+    {name:'Weigh-ins', have:weighs, need:st().weighGoal}
+  ].filter(c=>c.need>0).map(c=>({...c, ok:c.have>=c.need}));
+  const bonus = chals.filter(c=>c.ok).length * st().challengeBonus;
+  const total = base + bonus;
+  return {days, base, bonus, total, chals, won: total >= st().weeklyTarget, start:days[0].k};
+}
+function history(){
+  const keys = [...Object.keys(S.days), ...Object.keys(S.fastsByDay)].sort();
+  const cur = weekStart(todayKey());
+  let lifetime = 0, won = 0, streak = 0, weeks = [];
+  if(keys.length){
+    for(let w = weekStart(keys[0]); w <= cur; w = addDays(w,7)){
+      const wi = weekInfo(w); lifetime += wi.total; weeks.push({w, won:wi.won, current: w===cur});
+    }
+  }
+  won = weeks.filter(x=>x.won).length;
+  for(let i=weeks.length-1;i>=0;i--){
+    const x = weeks[i];
+    if(x.current && !x.won) continue;
+    if(x.won) streak++; else break;
+  }
+  const level = Math.floor(lifetime/1000)+1, xp = lifetime%1000;
+  return {lifetime, won, streak, level, xp};
+}
+
+/* ---------- persistence: GitHub repo (data.json) ---------- */
+const LS = {
+  get(k, fb){ try{ const v=localStorage.getItem('fastlane.'+k); return v==null?fb:JSON.parse(v); }catch(e){ return fb; } },
+  set(k, v){ try{ localStorage.setItem('fastlane.'+k, JSON.stringify(v)); }catch(e){} }
+};
+const GH = { cfg: LS.get('gh', null), sha:null, busy:false, status:'idle' };
+S.pending = LS.get('pending', []);
+const DATA_PATH = 'data.json';
+const emptyData = () => ({version:1, days:{}, fasts:{}, settings:null});
+let DATA = LS.get('cache', null) || emptyData();
+
+function applyOp(d, op){
+  d.days ||= {}; d.fasts ||= {};
+  switch(op.t){
+    case 'day': d.days[op.k] = {...(d.days[op.k]||{}), ...op.patch}; break;
+    case 'wadd': { const day = d.days[op.k] = {...(d.days[op.k]||{})}; day.workouts = [...(day.workouts||[]).filter(w=>w.at!==op.w.at), op.w]; break; }
+    case 'wdel': { const day = d.days[op.k]; if(day) day.workouts = (day.workouts||[]).filter(w=>w.at!==op.at); break; }
+    case 'fput': d.fasts[op.f.id] = {start:op.f.start, end:op.f.end ?? null}; break;
+    case 'fdel': delete d.fasts[op.id]; break;
+    case 'settings': d.settings = op.s; break;
+  }
+  return d;
+}
+function loadFromData(){
+  S.days = structuredClone(DATA.days || {});
+  const f = {}; for(const [id,x] of Object.entries(DATA.fasts||{})) f[id] = {id, start:x.start, end:x.end ?? null};
+  S.fasts = f; indexFasts();
+  const d = DATA.settings;
+  S.settings = d ? {...structuredClone(DEFAULTS), ...structuredClone(d), plan:{...DEFAULTS.plan, ...(d.plan||{})}, goals:{...DEFAULTS.goals, ...(d.goals||{})}} : structuredClone(DEFAULTS);
+}
+function commit(op){
+  applyOp(DATA, op); LS.set('cache', DATA);
+  S.pending.push(op); LS.set('pending', S.pending);
+  loadFromData(); flush();
+}
+const setDay = (k, patch) => commit({t:'day', k, patch});
+const putFast = f => commit({t:'fput', f:{id:f.id, start:f.start, end:f.end ?? null}});
+const removeFast = id => commit({t:'fdel', id});
+const saveSettings = () => commit({t:'settings', s:structuredClone(S.settings)});
+
+/* GitHub contents API */
+const b64enc = str => { const bytes = new TextEncoder().encode(str); let bin=''; for(let i=0;i<bytes.length;i+=0x8000) bin += String.fromCharCode(...bytes.subarray(i,i+0x8000)); return btoa(bin); };
+const b64dec = b64 => new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\s/g,'')), c=>c.charCodeAt(0)));
+function ghUrl(c){ return `https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${DATA_PATH}`; }
+async function ghFetch(c, opts={}){
+  const r = await fetch(ghUrl(c) + (opts.method ? '' : `?ts=${Date.now()}`), {...opts, cache:'no-store', headers:{'Accept':'application/vnd.github+json','Authorization':`Bearer ${c.token}`,'X-GitHub-Api-Version':'2022-11-28', ...(opts.body?{'Content-Type':'application/json'}:{})}});
+  return r;
+}
+async function ghRead(c){
+  const r = await ghFetch(c);
+  if(r.status===404) return {data:emptyData(), sha:null, missing:true};
+  if(!r.ok) throw {status:r.status};
+  const j = await r.json();
+  return {data: JSON.parse(b64dec(j.content) || '{}'), sha:j.sha};
+}
+async function ghWrite(c, data, sha, msg){
+  const r = await ghFetch(c, {method:'PUT', body:JSON.stringify({message:msg, content:b64enc(JSON.stringify(data, null, 1)), ...(sha?{sha}:{})})});
+  if(!r.ok) throw {status:r.status};
+  return (await r.json()).content.sha;
+}
+const opLabel = op => ({day:'Update day', wadd:'Log workout', wdel:'Remove workout', fput:'Save fast', fdel:'Delete fast', settings:'Save settings'}[op.t] || 'Update') + (op.k?` ${op.k}`:'');
+function setStatus(st){ GH.status = st; renderStatus(); }
+
+async function flush(){
+  if(!GH.cfg){ setStatus('local'); return; }
+  if(GH.busy){ GH.again = true; return; }
+  GH.busy = true;
+  try{
+    for(let attempt=0; attempt<4; attempt++){
+      const ops = S.pending.slice();
+      setStatus(ops.length ? 'saving' : 'syncing');
+      const {data:remote, sha} = await ghRead(GH.cfg);
+      if(!ops.length){ DATA = remote; GH.sha = sha; break; }
+      const merged = ops.reduce((d,op)=>applyOp(d,op), structuredClone(remote));
+      try{
+        GH.sha = await ghWrite(GH.cfg, merged, sha, ops.length===1 ? opLabel(ops[0]) : `${ops.length} updates`);
+        S.pending = S.pending.slice(ops.length); LS.set('pending', S.pending);
+        DATA = S.pending.reduce((d,op)=>applyOp(d,op), merged);
+        if(!S.pending.length) break;
+      }catch(e){
+        if(e.status===409 || e.status===422){ await new Promise(r=>setTimeout(r, 300+Math.random()*700)); continue; }
+        throw e;
+      }
+    }
+    LS.set('cache', DATA);
+    setStatus(S.pending.length ? 'offline' : 'synced');
+  }catch(e){
+    setStatus(e && (e.status===401 || e.status===403) ? 'auth' : e && e.status===404 ? 'norepo' : 'offline');
+  }finally{
+    GH.busy = false;
+    const typing = document.activeElement && ['INPUT','SELECT'].includes(document.activeElement.tagName);
+    if(!typing && !S.pending.length){ loadFromData(); render(); }
+    if(GH.again){ GH.again = false; flush(); }
+  }
+}
+function indexFasts(){
+  const by = {};
+  for(const f of Object.values(S.fasts)){ if(!f.end) continue; const k=keyOf(new Date(f.end)); (by[k] ||= []).push(f); }
+  for(const k in by) by[k].sort((a,b)=>a.start-b.start);
+  S.fastsByDay = by;
+}
+
+/* actions that score: wrap to detect week win */
+function scoring(fn){
+  const wk = todayKey();
+  const before = weekInfo(wk).total;
+  fn();
+  const after = weekInfo(wk).total;
+  render();
+  const gain = after - before;
+  if(before < st().weeklyTarget && after >= st().weeklyTarget) celebrate(after);
+  else if(gain > 0) toast(`+${gain} pts`);
+}
+
+/* ---------- UI helpers ---------- */
+let toastT;
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1800); }
+function celebrate(total){
+  const L = document.getElementById('winLayer');
+  L.innerHTML = `<div class="win" id="winBox"><div class="box"><h2>Week won</h2><p class="num" style="font-family:var(--display);font-size:26px;font-weight:700;margin:10px 0 4px">${total} / ${st().weeklyTarget} pts</p><p class="muted">Target smashed. Everything past here is bonus.</p><button class="btn primary block" id="winClose">Keep going</button></div></div>`;
+  document.getElementById('winClose').onclick = () => { L.innerHTML=''; };
+  confetti();
+}
+function confetti(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const c = document.getElementById('confetti'); c.hidden=false;
+  const x = c.getContext('2d'); const W = c.width = innerWidth*devicePixelRatio, H = c.height = innerHeight*devicePixelRatio;
+  const cols = ['#FFB020','#38C6F4','#C58CFF','#34D399','#EEF2F8'];
+  const P = Array.from({length:160},()=>({x:W/2,y:H*0.45,vx:(Math.random()-.5)*W*0.025,vy:-Math.random()*H*0.03-H*0.005,r:Math.random()*6+4,c:cols[Math.random()*5|0],a:Math.random()*6}));
+  let f=0; (function step(){ x.clearRect(0,0,W,H); for(const p of P){ p.x+=p.vx; p.y+=p.vy; p.vy+=H*0.0009; p.a+=.15; x.save(); x.translate(p.x,p.y); x.rotate(p.a); x.fillStyle=p.c; x.fillRect(-p.r,-p.r/2,p.r*2*devicePixelRatio/1.5,p.r*devicePixelRatio/1.5); x.restore(); } if(++f<150) requestAnimationFrame(step); else { x.clearRect(0,0,W,H); c.hidden=true; } })();
+}
+const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* two-tap delete */
+let armed = null;
+function armOrRun(btn, fn){
+  if(armed === btn){ armed=null; fn(); return; }
+  if(armed){ armed.textContent = armed.dataset.label; }
+  armed = btn; btn.dataset.label = btn.textContent; btn.textContent = 'Tap again';
+  setTimeout(()=>{ if(armed===btn){ btn.textContent=btn.dataset.label; armed=null; } }, 2500);
+}
+
+/* ---------- render: shared pieces ---------- */
+function quickLog(k){
+  const pts = Math.round(S.tapMin * (S.tapType==='lift'?st().liftPerMin:st().runPerMin));
+  return `
+  <div class="seg">
+    <button class="run ${S.tapType==='run'?'on':''}" data-act="tapType" data-v="run">${IC.run}Run</button>
+    <button class="lift ${S.tapType==='lift'?'on':''}" data-act="tapType" data-v="lift">${IC.lift}Lift</button>
+  </div>
+  <div class="mins">${MINS.map(m=>`<button class="num ${S.tapMin===m?'on':''}" data-act="tapMin" data-v="${m}">${m}<small>min</small></button>`).join('')}</div>
+  <button class="btn primary block" data-act="logWorkout" data-k="${k}">Log ${S.tapType} · ${S.tapMin} min · +${pts}</button>`;
+}
+function workoutList(k){
+  const w = (S.days[k]?.workouts)||[];
+  if(!w.length) return '';
+  return `<div class="logs">${w.map((x,i)=>`<div class="log">${icon(x.type)}<div class="grow">${x.type==='lift'?'Lift':'Run'} · ${x.min} min${x.at?` <span class="muted">· ${fmtTime(x.at)}</span>`:''}</div><span class="pts num">+${workoutPts(x)}</span><button class="btn small ghost danger" data-act="delWorkout" data-k="${k}" data-at="${x.at}">Remove</button></div>`).join('')}</div>`;
+}
+function stripIcon(d, isFuture){
+  if(d.lifts || d.runs) return (d.lifts?icon('lift'):'') + (d.runs?icon('run'):'');
+  if(d.plan==='rest') return '<span class="muted" style="font-size:12px">rest</span>';
+  return icon(d.plan, isFuture || d.k===todayKey() ? 'planned' : missCls(d.k));
+}
+function scoreboard(k, compact){
+  const wi = weekInfo(k), pct = Math.min(100, wi.total/st().weeklyTarget*100), tk = todayKey();
+  return `
+  <div class="label"><span>Week of ${fmtDayShort(wi.start)}</span>${wi.won?'<span class="tag hit">Won</span>':`<span class="num">${Math.max(0,st().weeklyTarget-wi.total)} to go</span>`}</div>
+  <div class="score num"><b>${wi.total}</b><span>/ ${st().weeklyTarget} pts</span></div>
+  <div class="bar ${wi.won?'won':''}"><i style="width:${pct}%"></i></div>
+  <div class="muted num" style="font-size:13px">${wi.base} earned${wi.bonus?` + ${wi.bonus} challenge bonus`:''}</div>
+  <div class="chals">${wi.chals.map(c=>`<div class="chal ${c.ok?'ok':''}"><span>${c.name}</span><b class="num">${c.have}/${c.need}${c.ok?' ✓':''}</b></div>`).join('')}</div>
+  ${compact?'':`<div class="strip">${wi.days.map(d=>`<button class="sd ${d.k===tk?'today':''}" data-act="openDay" data-k="${d.k}"><span class="dw">${DOW[parseKey(d.k).getDay()].slice(0,2)}</span>${stripIcon(d, d.k>tk)}<span class="p num">${d.pts||'·'}</span></button>`).join('')}</div>`}`;
+}
+
+/* ---------- view: today ---------- */
+function viewToday(){
+  const k = todayKey(), d = dayInfo(k), f = activeFast(), h = history();
+  const lastDone = Object.values(S.fasts).filter(x=>x.end).sort((a,b)=>b.end-a.end)[0];
+  const planTxt = d.plan==='rest' ? 'Rest day' : (d.plan==='lift' ? 'Lift day' : 'Cardio day');
+  const planDone = d.plan==='lift' ? d.lifts>0 : d.plan==='run' ? d.runs>0 : true;
+  const nextReward = (st().rewards||[]).filter(r=>r.weeks > h.won).sort((a,b)=>a.weeks-b.weeks)[0];
+  const earned = (st().rewards||[]).filter(r=>r.weeks <= h.won);
+  return `
+  <div class="grid two">
+    <section class="card">
+      <div class="label"><span>Fast</span><span class="muted">${st().fastMinHours}h+ wins</span></div>
+      ${f ? fastLive(f) : `
+        <h2 class="big">Eating window open</h2>
+        <p class="muted" style="margin:6px 0 14px">${lastDone ? `Last fast: <b class="num" style="color:var(--text)">${hm(fastHours(lastDone))}</b>, ended ${fmtDayShort(keyOf(new Date(lastDone.end)))} at ${fmtTime(lastDone.end)} ${fastHours(lastDone)>=st().fastMinHours?'<span class="tag hit">Won</span>':'<span class="tag miss">Short</span>'}` : 'Tap start when you finish your last meal.'}</p>
+        <button class="btn primary block" data-act="startFast">Start fast</button>`}
+    </section>
+
+    <section class="card">${scoreboard(k)}</section>
+
+    <section class="card">
+      <div class="label"><span>Quick log</span><span class="${planDone?'tag hit':'tag'}">${planTxt}${d.plan!=='rest'&&planDone?' ✓':''}</span></div>
+      ${quickLog(k)}
+      ${workoutList(k)}
+    </section>
+
+    <section class="card">
+      <div class="label"><span>Weigh-in</span><span class="muted num">+${st().weighIn} pts</span></div>
+      ${weightForm(k)}
+      <div style="height:18px"></div>
+      <div class="label"><span>Progress</span><span class="muted num">Level ${h.level}</span></div>
+      <div class="stats">
+        <div class="stat"><b class="num">${h.won}</b><span>Weeks won</span></div>
+        <div class="stat"><b class="num">${h.streak}</b><span>Win streak</span></div>
+        <div class="stat"><b class="num">${h.level}</b><span>Level</span></div>
+      </div>
+      <div class="muted num" style="font-size:13px;margin-top:10px">${h.xp} / 1000 XP to level ${h.level+1}</div>
+      <div class="xp"><i style="width:${h.xp/10}%"></i></div>
+      ${nextReward ? `<div class="reward"><span>Next reward: <b>${esc(nextReward.name)}</b></span><span class="num muted">${h.won}/${nextReward.weeks} weeks</span></div><div class="xp"><i style="width:${Math.min(100,h.won/nextReward.weeks*100)}%;background:var(--accent)"></i></div>` : ''}
+      ${earned.length ? `<div class="reward"><span class="muted">Earned: ${earned.map(r=>esc(r.name)).join(', ')}</span></div>` : ''}
+    </section>
+  </div>`;
+}
+function fastLive(f){
+  const hrs = fastHours(f), target = st().fastMinHours, pct = Math.min(1, hrs/target), C = 2*Math.PI*54;
+  const miles = [target, target+2, target+4];
+  return `
+  <div class="fast">
+    <div class="ring ${hrs>=target?'done':''}" id="ring">
+      <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="54" stroke-width="10" fill="none"/><circle class="prog" id="ringProg" cx="60" cy="60" r="54" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct)}"/></svg>
+      <div class="mid"><div class="t num" id="fastClock">${clock(hrs)}</div><div class="s">Fasting</div></div>
+    </div>
+    <div>
+      <div class="muted">Started ${fmtDayShort(keyOf(new Date(f.start)))}, ${fmtTime(f.start)}</div>
+      <div class="miles" id="miles">${miles.map(m=>`<span class="mile ${hrs>=m?'on':''}">${m}h</span>`).join('')}</div>
+      <div class="muted num" id="fastGoalTxt" style="font-size:14px;margin-bottom:12px">${goalText(hrs)}</div>
+      <div class="row">
+        <button class="btn primary" data-act="endFast">End fast</button>
+        <button class="btn small ghost" data-act="toggleEditStart">Edit start</button>
+      </div>
+      <div id="editStart" hidden style="margin-top:10px"><input type="datetime-local" id="fastStartInput" value="${toLocalInput(f.start)}"> <button class="btn small" data-act="saveStart">Save</button></div>
+    </div>
+  </div>`;
+}
+const clock = h => { const s=Math.max(0,Math.floor(h*3600)); return `${Math.floor(s/3600)}:${pad(Math.floor(s/60)%60)}:${pad(s%60)}`; };
+function goalText(h){ const t=st().fastMinHours; if(h<t) return `${hm(t-h)} to a winning fast`; const p = st().fastBase + Math.floor(h-t)*st().fastPerHour; return `Won. Worth +${p} pts if you end now`; }
+function weightForm(k){
+  const d = S.days[k]||{}; const w = d.weight;
+  const prev = recentWeights(k);
+  const diff = (typeof w==='number' && prev.length) ? w - prev.reduce((a,b)=>a+b,0)/prev.length : null;
+  return `<div class="row"><input type="number" inputmode="decimal" step="0.1" id="w-${k}" placeholder="lbs" value="${typeof w==='number'?w:''}"><span class="muted">lbs</span><button class="btn" data-act="saveWeight" data-k="${k}">${typeof w==='number'?'Update':'Save'}</button></div>
+  ${diff!==null?`<div class="muted num" style="font-size:13px;margin-top:8px">${diff<=0?'▼':'▲'} ${Math.abs(diff).toFixed(1)} lbs vs your previous 7-day average · goal ${st().goals.weightLow}–${st().goals.weightHigh}</div>`:`<div class="muted" style="font-size:13px;margin-top:8px">Goal ${st().goals.weightLow}–${st().goals.weightHigh} lbs</div>`}`;
+}
+function recentWeights(k){ const out=[]; for(let i=1;i<=7;i++){ const w=S.days[addDays(k,-i)]?.weight; if(typeof w==='number') out.push(w);} return out; }
+
+/* ---------- view: calendar ---------- */
+function viewCal(){
+  const c = S.cursor, d = parseKey(c);
+  let title;
+  if(S.calMode==='month') title = `${MON[d.getMonth()]} ${d.getFullYear()}`;
+  else if(S.calMode==='week') title = `Week of ${fmtDayShort(weekStart(c))}`;
+  else title = fmtDayShort(c);
+  return `
+  <div class="calbar">
+    <div class="tabs3">${['day','week','month'].map(m=>`<button class="${S.calMode===m?'on':''}" data-act="calMode" data-v="${m}">${m[0].toUpperCase()+m.slice(1)}</button>`).join('')}</div>
+    <div class="nav"><button data-act="calPrev" aria-label="Previous">‹</button><h3>${title}</h3><button data-act="calNext" aria-label="Next">›</button><button class="btn small" style="width:auto;height:38px" data-act="calToday">Today</button></div>
+  </div>
+  ${S.calMode==='month'?calMonth():S.calMode==='week'?calWeek():calDay()}`;
+}
+function cellIcons(d, tk){
+  let s='';
+  for(let i=0;i<d.lifts;i++) s+=icon('lift');
+  for(let i=0;i<d.runs;i++) s+=icon('run');
+  if(!d.lifts && !d.runs && d.plan!=='rest') if(d.k>=tk || d.k>=firstKey()) s+=icon(d.plan, d.k>=tk ? 'planned' : 'missed');
+  return s;
+}
+function fastClass(d, tk){
+  const f = activeFast();
+  if(d.k===tk && f && !d.fasts.length) return 'live';
+  if(!d.fasts.length) return '';
+  return d.fastHit ? 'hit' : 'miss';
+}
+function calMonth(){
+  const c = parseKey(S.cursor), first = new Date(c.getFullYear(), c.getMonth(), 1), tk = todayKey();
+  let k = weekStart(keyOf(first)); const cells=[];
+  for(let i=0;i<42;i++){
+    const dd = parseKey(k); if(i===35 && dd.getMonth()!==c.getMonth()) break;
+    const d = dayInfo(k), g = d.garmin || {};
+    const hv = [g.sleepScore!=null?`Sleep ${g.sleepScore}`:'', g.hrv!=null?`HRV ${g.hrv}`:''].filter(Boolean).join(' · ');
+    cells.push(`<button class="cell ${dd.getMonth()!==c.getMonth()?'out':''} ${k===tk?'today':''}" data-act="openDay" data-k="${k}">
+      <span class="dn num">${dd.getDate()}</span>${d.pts?`<span class="cp num">${d.pts}</span>`:''}
+      <span class="fb ${fastClass(d,tk)}"></span>
+      <span class="ic">${cellIcons(d,tk)}</span>
+      ${d.hasWeight?`<span class="wt num">${d.weight.toFixed(1)}</span>`:''}
+      ${hv?`<span class="hv num">${hv}</span>`:''}
+    </button>`);
+    k = addDays(k,1);
+  }
+  return `<div class="month">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(x=>`<div class="mh">${x}</div>`).join('')}${cells.join('')}</div>
+  <div class="row muted" style="font-size:12px;margin-top:12px;gap:14px">
+    <span class="row" style="gap:6px"><span class="fb hit" style="width:18px;height:4px;border-radius:4px;display:inline-block"></span>Fast won</span>
+    <span class="row" style="gap:6px"><span class="fb miss" style="width:18px;height:4px;border-radius:4px;display:inline-block"></span>Fast short</span>
+    <span class="row" style="gap:4px">${icon('lift')}Lift</span><span class="row" style="gap:4px">${icon('run')}Run</span>
+    <span class="row" style="gap:4px">${icon('lift','planned')}Planned</span><span class="row" style="gap:4px">${icon('run','missed')}Missed</span>
+  </div>`;
+}
+function calWeek(){
+  const tk = todayKey(), wi = weekInfo(S.cursor);
+  return `<section class="card">${scoreboard(S.cursor, true)}</section>
+  <div class="wlist">${wi.days.map(d=>{
+    const dd=parseKey(d.k), g=d.garmin||{};
+    return `<button class="wrow ${d.k===tk?'today':''}" data-act="openDay" data-k="${d.k}">
+      <div class="d num">${DOW[dd.getDay()]}<small>${MON[dd.getMonth()].slice(0,3)} ${dd.getDate()}</small></div>
+      <div class="mid">
+        ${d.fasts.length?`<span class="tag ${d.fastHit?'hit':'miss'} num">Fast ${hm(d.bestFast)}</span>`:''}
+        ${d.hasWeight?`<span class="num">${d.weight.toFixed(1)} lbs</span>`:''}
+        ${d.workouts.map(w=>`<span class="num">${icon(w.type)} ${w.min}m</span>`).join('')}
+        ${!d.workouts.length&&d.plan!=='rest'?`<span class="muted">${icon(d.plan, d.k>=tk?'planned':missCls(d.k))} ${d.k>=tk?'planned':(d.k<firstKey()?'planned':'missed')}</span>`:''}
+        ${g.hrv!=null?`<span class="muted num">HRV ${g.hrv}</span>`:''}${g.sleepScore!=null?`<span class="muted num">Sleep ${g.sleepScore}</span>`:''}
+      </div>
+      <div class="pp num">${d.pts||''}</div>
+    </button>`;}).join('')}</div>`;
+}
+function calDay(){
+  const k = S.cursor, d = dayInfo(k), g = d.garmin, f = activeFast();
+  const fasts = d.fasts;
+  const planTxt = d.plan==='rest' ? 'Rest day' : d.plan==='lift' ? 'Planned: lift' : 'Planned: cardio';
+  const metricDefs = [['sleepScore','Sleep score',''],['sleepHours','Sleep','h'],['hrv','HRV','ms'],['rhr','Resting HR','bpm'],['vo2max','VO2 max',''],['bodyBattery','Body Battery',''],['stress','Avg stress',''],['steps','Steps',''],['intensityMinutes','Intensity min','']];
+  return `<div class="grid two">
+    <section class="card">
+      <div class="label"><span>Day total</span><span class="tag">${planTxt}</span></div>
+      <div class="score num"><b>${d.pts}</b><span>pts</span></div>
+      <div style="height:16px"></div>
+      <div class="label"><span>Weight</span></div>
+      ${weightForm(k)}
+    </section>
+    <section class="card">
+      <div class="label"><span>Fasts ending this day</span><button class="btn small" data-act="addFast" data-k="${k}">Add fast</button></div>
+      ${f && k===todayKey() ? `<p class="muted" style="margin:0 0 10px">A fast is running now (${hm(fastHours(f))}). End it from Today.</p>`:''}
+      ${fasts.length ? `<div class="form">${fasts.map(x=>`
+        <div class="fastedit">
+          <div class="row" style="justify-content:space-between"><b class="num">${hm(fastHours(x))}</b>${fastHours(x)>=st().fastMinHours?`<span class="tag hit num">Won +${fastPts(x)}</span>`:'<span class="tag miss">Short</span>'}</div>
+          <label>Started<input type="datetime-local" id="fs-${x.id}" value="${toLocalInput(x.start)}"></label>
+          <label>Ended<input type="datetime-local" id="fe-${x.id}" value="${toLocalInput(x.end)}"></label>
+          <div class="row"><button class="btn small" data-act="saveFast" data-id="${x.id}">Save times</button><button class="btn small ghost danger" data-act="delFast" data-id="${x.id}">Delete</button></div>
+        </div>`).join('')}</div>` : '<p class="muted" style="margin:0">No fast logged for this day.</p>'}
+    </section>
+    <section class="card">
+      <div class="label"><span>Workouts</span></div>
+      ${quickLog(k)}
+      ${workoutList(k)}
+    </section>
+    <section class="card">
+      <div class="label"><span>Garmin</span><span class="muted" style="letter-spacing:0;text-transform:none;font-weight:600">Tracking only, no points</span></div>
+      ${g ? `<div class="metrics">${metricDefs.filter(([key])=>g[key]!=null).map(([key,lab,u])=>`<div class="metric"><b class="num">${typeof g[key]==='number'?g[key].toLocaleString():esc(g[key])}${u?`<small style="font-size:14px;color:var(--muted)"> ${u}</small>`:''}</b><span>${lab}</span></div>`).join('')}</div>
+        ${(g.activities||[]).length?`<div class="logs">${g.activities.map(a=>`<div class="log"><div class="grow"><b>${esc(a.name||a.type||'Activity')}</b> <span class="muted num">${[a.min?a.min+' min':'', a.distanceKm?a.distanceKm+' km':'', a.avgHr?'avg '+a.avgHr+' bpm':''].filter(Boolean).join(' · ')}</span></div></div>`).join('')}</div>`:''}`
+        : '<p class="muted" style="margin:0">No Garmin data for this day yet. It fills in after your weekly upload.</p>'}
+    </section>
+  </div>`;
+}
+
+/* ---------- view: trends ---------- */
+function series(field, days){
+  const out=[]; const end=todayKey();
+  for(let i=days-1;i>=0;i--){ const k=addDays(end,-i); const v = field==='weight' ? S.days[k]?.weight : S.days[k]?.garmin?.[field]; if(typeof v==='number') out.push({k, i:days-1-i, v}); }
+  return out;
+}
+function chart(pts, {days, band, avg=false, fmt=v=>v}){
+  if(pts.length < 2) return '';
+  const W=600,H=220,L=44,R=14,T=12,B=26;
+  const vals = pts.map(p=>p.v).concat(band||[]);
+  let lo=Math.min(...vals), hi=Math.max(...vals); const padv=(hi-lo)*0.12||1; lo-=padv; hi+=padv;
+  const step = niceStep((hi-lo)/4); lo=Math.floor(lo/step)*step; hi=Math.ceil(hi/step)*step;
+  const x = i => L + (W-L-R)*(i/(days-1)), y = v => T + (H-T-B)*(1-(v-lo)/(hi-lo));
+  let g='';
+  for(let v=lo; v<=hi+1e-9; v+=step){ g+=`<line class="gl" x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${L-6}" y="${y(v)+4}" text-anchor="end">${fmt(+v.toFixed(2))}</text>`; }
+  const end = todayKey();
+  [0, Math.floor((days-1)/2), days-1].forEach(i=>{ const k=addDays(end, i-(days-1)); const d=parseKey(k); g+=`<text class="ax" x="${x(i)}" y="${H-6}" text-anchor="${i===0?'start':i===days-1?'end':'middle'}">${MON[d.getMonth()].slice(0,3)} ${d.getDate()}</text>`; });
+  const bandEl = band ? `<rect class="band" x="${L}" width="${W-L-R}" y="${y(band[1])}" height="${Math.max(0,y(band[0])-y(band[1]))}"/>` : '';
+  const dots = pts.map(p=>`<circle class="dot" cx="${x(p.i)}" cy="${y(p.v)}" r="${avg?2.6:3.2}"/>`).join('');
+  let line='';
+  const lp = avg ? pts.map((p,j)=>{ const win=pts.filter(q=>q.i<=p.i && q.i>p.i-7); return {i:p.i, v:win.reduce((a,b)=>a+b.v,0)/win.length}; }) : pts;
+  line = `<path class="avg" d="${lp.map((p,j)=>`${j?'L':'M'}${x(p.i).toFixed(1)},${y(p.v).toFixed(1)}`).join('')}"/>`;
+  const last = lp[lp.length-1];
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img">${g}${bandEl}${dots}${line}<circle class="end" cx="${x(last.i)}" cy="${y(last.v)}" r="5"/></svg></div>`;
+}
+function niceStep(raw){ const p=Math.pow(10,Math.floor(Math.log10(raw))); const n=raw/p; return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p; }
+function viewTrends(){
+  const G = st().goals;
+  const w = series('weight',90);
+  const lastW = w[w.length-1];
+  const defs = [
+    ['hrv','HRV','ms',[G.hrvLow,G.hrvHigh]],
+    ['rhr','Resting heart rate','bpm',[G.rhrLow,G.rhrHigh]],
+    ['vo2max','VO2 max','',[G.vo2Low,G.vo2High]],
+    ['sleepScore','Sleep score','',null]
+  ];
+  return `<div class="grid two">
+    <section class="card span2">
+      <div class="label"><span>Weight · 90 days</span><span class="muted num">Goal ${G.weightLow}–${G.weightHigh} lbs</span></div>
+      ${lastW?`<div class="score num"><b style="font-size:44px">${lastW.v.toFixed(1)}</b><span>lbs · ${(lastW.v-G.weightHigh)>0?`${(lastW.v-G.weightHigh).toFixed(1)} above goal range`:'in goal range'}</span></div>`:''}
+      ${chart(w,{days:90, band:[G.weightLow,G.weightHigh], avg:true}) || '<p class="empty">Log at least two weigh-ins to see your trend. The line is your 7-day average; the green band is your goal.</p>'}
+    </section>
+    ${defs.map(([f,lab,u,band])=>{ const s=series(f,90); const last=s[s.length-1]; return `<section class="card">
+      <div class="label"><span>${lab}</span><span class="muted num">${band?`Goal ${band[0]}–${band[1]}${u?' '+u:''}`:''}</span></div>
+      ${last?`<div class="score num"><b style="font-size:36px">${last.v}</b><span>${u}</span></div>`:''}
+      ${chart(s,{days:90, band}) || '<p class="empty">Appears after your Garmin data is added.</p>'}
+    </section>`;}).join('')}
+  </div>`;
+}
+
+/* ---------- view: settings ---------- */
+function viewSettings(){
+  const s = st(), num = (id,label,v,step=1) => `<div class="fr"><label for="${id}">${label}</label><input type="number" id="${id}" step="${step}" value="${v}"></div>`;
+  const opt = (v,cur) => `<option value="${v}" ${v===cur?'selected':''}>${v==='run'?'Cardio':v==='lift'?'Lift':'Rest'}</option>`;
+  return `<div class="grid two">
+    <section class="card form">
+      <div class="label"><span>Points</span></div>
+      ${num('s-lift','Lift, pts per minute',s.liftPerMin,0.5)}
+      ${num('s-run','Run / cardio, pts per minute',s.runPerMin,0.5)}
+      ${num('s-fmin','Winning fast, minimum hours',s.fastMinHours)}
+      ${num('s-fbase','Winning fast, points',s.fastBase)}
+      ${num('s-fhr','Bonus per extra hour fasted',s.fastPerHour)}
+      ${num('s-weigh','Daily weigh-in, points',s.weighIn)}
+      ${num('s-target','Weekly target',s.weeklyTarget,10)}
+      ${num('s-bonus','Bonus per weekly challenge',s.challengeBonus)}
+      ${num('s-fgoal','Challenge: winning fasts per week',s.fastsGoal)}
+      ${num('s-wgoal','Challenge: weigh-ins per week',s.weighGoal)}
+    </section>
+    <section class="card form">
+      <div class="label"><span>Training plan</span><span class="muted num">${planCounts().run} cardio · ${planCounts().lift} lift</span></div>
+      <div class="plan">${[1,2,3,4,5,6,0].map(d=>`<label>${DOW[d]}<select id="p-${d}">${opt('lift',s.plan[d])}${opt('run',s.plan[d])}${opt('rest',s.plan[d])}</select></label>`).join('')}</div>
+      <div class="label" style="margin-top:8px"><span>Goals</span></div>
+      <div class="fr"><label>Weight (lbs)</label><span class="row"><input type="number" id="g-wl" value="${s.goals.weightLow}" style="width:80px">–<input type="number" id="g-wh" value="${s.goals.weightHigh}" style="width:80px"></span></div>
+      <div class="fr"><label>VO2 max</label><span class="row"><input type="number" id="g-vl" value="${s.goals.vo2Low}" style="width:80px">–<input type="number" id="g-vh" value="${s.goals.vo2High}" style="width:80px"></span></div>
+      <div class="fr"><label>HRV (ms)</label><span class="row"><input type="number" id="g-hl" value="${s.goals.hrvLow}" style="width:80px">–<input type="number" id="g-hh" value="${s.goals.hrvHigh}" style="width:80px"></span></div>
+      <div class="fr"><label>Resting HR (bpm)</label><span class="row"><input type="number" id="g-rl" value="${s.goals.rhrLow}" style="width:80px">–<input type="number" id="g-rh" value="${s.goals.rhrHigh}" style="width:80px"></span></div>
+    </section>
+    <section class="card form span2">
+      <div class="label"><span>Real-life rewards</span><span class="muted">Unlocked by total weeks won</span></div>
+      <div class="logs" style="margin:0">${(s.rewards||[]).map(r=>`<div class="log"><div class="grow">${esc(r.name)}</div><span class="num muted">${r.weeks} weeks</span><button class="btn small ghost danger" data-act="delReward" data-id="${r.id}">Remove</button></div>`).join('') || '<p class="muted" style="margin:0">No rewards yet.</p>'}</div>
+      <div class="row"><input type="text" id="rw-name" placeholder="e.g. New lifting shoes" style="flex:1;min-width:160px"><input type="number" id="rw-weeks" placeholder="Weeks" style="width:100px"><button class="btn" data-act="addReward">Add reward</button></div>
+    </section>
+    <div class="span2"><button class="btn primary block" data-act="saveSettings">Save settings</button></div>
+    <section class="card form span2">
+      <div class="label"><span>GitHub sync</span><span class="sync ${GH.status}" style="letter-spacing:0;text-transform:none"><i></i>${STATUS_TXT[GH.status]||''}</span></div>
+      <p class="muted" style="margin:0;font-size:14px">Your data is saved as <b>data.json</b> in a private repo. Connect once on each device. The token stays on this device only.</p>
+      <div class="fr"><label for="gh-owner">GitHub username</label><input type="text" id="gh-owner" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(GH.cfg?.owner||'')}" placeholder="dangarritymedia-ib"></div>
+      <div class="fr"><label for="gh-repo">Data repo name</label><input type="text" id="gh-repo" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(GH.cfg?.repo||'')}" placeholder="fast-lane-data"></div>
+      <div class="fr"><label for="gh-token">Access token</label><input type="password" id="gh-token" autocomplete="off" value="${GH.cfg?'••••••••••':''}" placeholder="github_pat_…"></div>
+      <div class="row"><button class="btn" data-act="ghConnect">${GH.cfg?'Update & reconnect':'Connect'}</button>${GH.cfg?'<button class="btn ghost" data-act="ghSync">Sync now</button><button class="btn ghost danger" data-act="ghDisconnect">Disconnect this device</button>':''}</div>
+    </section>
+  </div>`;
+}
+
+/* ---------- render ---------- */
+const TABS = [['today','Today','today'],['cal','Calendar','cal'],['trends','Trends','trend'],['settings','Settings','gear']];
+function render(){
+  const wi = weekInfo(todayKey());
+  document.getElementById('hdrScore').innerHTML = `<b>${wi.total}</b><small>/ ${st().weeklyTarget} wk</small>`;
+  document.getElementById('tabs').innerHTML = TABS.map(([v,l,i])=>`<button class="${S.view===v?'on':''}" data-act="view" data-v="${v}">${IC[i]}${l}</button>`).join('');
+  renderBanner();
+  const m = document.getElementById('main');
+  m.innerHTML = S.view==='today'?viewToday():S.view==='cal'?viewCal():S.view==='trends'?viewTrends():viewSettings();
+}
+
+
+const STATUS_TXT = {idle:'', local:'This device only', syncing:'Syncing', saving:'Saving', synced:'Synced', offline:'Offline, will retry', auth:'Token rejected', norepo:'Repo not found'};
+function renderStatus(){
+  const el = document.getElementById('syncStat'); if(!el) return;
+  el.className = 'sync ' + GH.status; el.querySelector('span').textContent = STATUS_TXT[GH.status] || '';
+  el.title = STATUS_TXT[GH.status] || '';
+  renderBanner();
+}
+function renderBanner(){
+  const b = document.getElementById('banner'); if(!b) return;
+  let msg = '';
+  if(!GH.cfg) msg = 'Your logs are saved on this device only. Connect your GitHub data repo in Settings to sync them to your phone, iPad and GitHub.';
+  else if(GH.status==='auth') msg = 'GitHub rejected the token. Paste a new one in Settings.';
+  else if(GH.status==='norepo') msg = 'Can’t find the data repo. Check the owner and repo name in Settings, and that the token has access to it.';
+  else if(GH.status==='offline' && S.pending.length) msg = `${S.pending.length} change${S.pending.length>1?'s':''} waiting to sync. They’ll upload when you’re back online.`;
+  b.innerHTML = msg ? `<div class="banner">${msg}</div>` : '';
+}
+
+/* live timer tick (display only, never writes) */
+setInterval(()=>{
+  const f = activeFast(); const el = document.getElementById('fastClock');
+  if(!f || !el) return;
+  const h = fastHours(f), t = st().fastMinHours, C = 2*Math.PI*54;
+  el.textContent = clock(h);
+  document.getElementById('ringProg')?.setAttribute('stroke-dashoffset', C*(1-Math.min(1,h/t)));
+  document.getElementById('ring')?.classList.toggle('done', h>=t);
+  const g = document.getElementById('fastGoalTxt'); if(g) g.textContent = goalText(h);
+  document.querySelectorAll('#miles .mile').forEach((m,i)=>m.classList.toggle('on', h>=[t,t+2,t+4][i]));
+}, 1000);
+
+/* ---------- events ---------- */
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const val = id => document.getElementById(id)?.value;
+const numv = (id, fb) => { const v=parseFloat(val(id)); return isFinite(v)?v:fb; };
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]'); if(!b) return;
+  const a = b.dataset.act, k = b.dataset.k;
+  switch(a){
+    case 'view': S.view=b.dataset.v; if(S.view==='cal') S.cursor=todayKey(); render(); scrollTo(0,0); break;
+    case 'tapType': S.tapType=b.dataset.v; render(); break;
+    case 'tapMin': S.tapMin=+b.dataset.v; render(); break;
+    case 'logWorkout': scoring(()=>commit({t:'wadd', k, w:{type:S.tapType, min:S.tapMin, at:Date.now()}})); break;
+    case 'delWorkout': armOrRun(b, ()=>{ commit({t:'wdel', k, at:+b.dataset.at}); render(); }); break;
+    case 'saveWeight': { const v=parseFloat(val('w-'+k)); if(!isFinite(v)||v<50||v>600){ toast('Enter your weight in lbs'); break; } scoring(()=>setDay(k,{weight:Math.round(v*10)/10})); break; }
+    case 'startFast': if(activeFast()) break; putFast({id:uid(), start:Date.now(), end:null}); render(); toast('Fast started'); break;
+    case 'endFast': { const f=activeFast(); if(!f) break; const h=fastHours(f); scoring(()=>putFast({...f, end:Date.now()})); if(h<st().fastMinHours) toast(`Fast ended at ${hm(h)}`); break; }
+    case 'toggleEditStart': { const el=document.getElementById('editStart'); el.hidden=!el.hidden; break; }
+    case 'saveStart': { const f=activeFast(); const v=fromLocalInput(val('fastStartInput')); if(!f||!v||v>Date.now()){ toast('Pick a start time in the past'); break; } putFast({...f,start:v}); render(); toast('Start time updated'); break; }
+    case 'addFast': { const end=parseKey(k); end.setHours(12,0,0,0); const start=end.getTime()-16*36e5; scoring(()=>putFast({id:uid(), start, end:end.getTime()})); break; }
+    case 'saveFast': { const id=b.dataset.id, s=fromLocalInput(val('fs-'+id)), en=fromLocalInput(val('fe-'+id)); if(!s||!en||en<=s){ toast('End must be after start'); break; } putFast({...S.fasts[id], start:s, end:en}); render(); toast('Fast updated'); break; }
+    case 'delFast': armOrRun(b, ()=>{ removeFast(b.dataset.id); render(); }); break;
+    case 'openDay': S.view='cal'; S.calMode='day'; S.cursor=k; render(); scrollTo(0,0); break;
+    case 'calMode': S.calMode=b.dataset.v; render(); break;
+    case 'calToday': S.cursor=todayKey(); render(); break;
+    case 'calPrev': case 'calNext': {
+      const dir = a==='calPrev'?-1:1;
+      if(S.calMode==='day') S.cursor=addDays(S.cursor,dir);
+      else if(S.calMode==='week') S.cursor=addDays(S.cursor,7*dir);
+      else { const d=parseKey(S.cursor); S.cursor=keyOf(new Date(d.getFullYear(), d.getMonth()+dir, 1)); }
+      render(); break;
+    }
+    case 'addReward': { const n=(val('rw-name')||'').trim(), w=parseInt(val('rw-weeks')); if(!n||!(w>0)){ toast('Add a name and number of weeks'); break; } S.settings.rewards=[...(S.settings.rewards||[]), {id:uid(), name:n.slice(0,80), weeks:w}]; saveSettings(); render(); toast('Reward added'); break; }
+    case 'delReward': armOrRun(b, ()=>{ S.settings.rewards=S.settings.rewards.filter(r=>r.id!==b.dataset.id); saveSettings(); render(); }); break;
+    case 'ghConnect': {
+      const owner=(val('gh-owner')||'').trim(), repo=(val('gh-repo')||'').trim(); let token=(val('gh-token')||'').trim();
+      if(token.startsWith('•') && GH.cfg) token = GH.cfg.token;
+      if(!owner||!repo||!token){ toast('Fill in username, repo and token'); break; }
+      GH.cfg = {owner, repo, token}; LS.set('gh', GH.cfg); GH.sha=null;
+      toast('Connecting…'); flush().then(()=>{ if(GH.status==='synced') toast('Connected'); render(); });
+      break;
+    }
+    case 'ghSync': flush().then(()=>toast(GH.status==='synced'?'Synced':'Couldn’t sync')); break;
+    case 'ghDisconnect': armOrRun(b, ()=>{ GH.cfg=null; LS.set('gh', null); setStatus('local'); render(); toast('Disconnected'); }); break;
+    case 'saveSettings': {
+      const s = S.settings;
+      Object.assign(s, {liftPerMin:numv('s-lift',s.liftPerMin), runPerMin:numv('s-run',s.runPerMin), fastMinHours:numv('s-fmin',s.fastMinHours), fastBase:numv('s-fbase',s.fastBase), fastPerHour:numv('s-fhr',s.fastPerHour), weighIn:numv('s-weigh',s.weighIn), weeklyTarget:numv('s-target',s.weeklyTarget), challengeBonus:numv('s-bonus',s.challengeBonus), fastsGoal:numv('s-fgoal',s.fastsGoal), weighGoal:numv('s-wgoal',s.weighGoal)});
+      [0,1,2,3,4,5,6].forEach(d=>{ s.plan[d]=val('p-'+d)||s.plan[d]; });
+      s.goals = {weightLow:numv('g-wl',s.goals.weightLow), weightHigh:numv('g-wh',s.goals.weightHigh), vo2Low:numv('g-vl',s.goals.vo2Low), vo2High:numv('g-vh',s.goals.vo2High), hrvLow:numv('g-hl',s.goals.hrvLow), hrvHigh:numv('g-hh',s.goals.hrvHigh), rhrLow:numv('g-rl',s.goals.rhrLow), rhrHigh:numv('g-rh',s.goals.rhrHigh)};
+      saveSettings(); render(); toast('Settings saved'); break;
+    }
+  }
+});
+
+/* ---------- boot ---------- */
+loadFromData();
+render();
+renderStatus();
+flush();
+setInterval(()=>{ if(document.visibilityState==='visible') flush(); }, 60000);
+document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible') flush(); });
+addEventListener('online', flush);
+})();
+</script>
+</body>
+</html>
