@@ -21,7 +21,7 @@
   --bg:#0F1523; --surface:#182033; --surface2:#212B42; --line:#2E3A55;
   --text:#EEF2F8; --muted:#8E9BB5; --faint:#5C6883;
   --accent:#67AEDC; --accent-ink:#04203A; --brand:#015EA4; --accent-2:#8CC4E8;
-  --run:#FF9F5A; --lift:#C58CFF; --good:#34D399; --bad:#F87171;
+  --run:#FF9F5A; --lift:#C58CFF; --hockey:#5EEAD4; --bike:#FACC15; --good:#34D399; --bad:#F87171;
   --display:"Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
   --body:"Barlow", "Segoe UI", system-ui, sans-serif;
   --r:14px;
@@ -80,7 +80,7 @@ input[type=number]{width:120px}
 .ring .prog{stroke:var(--accent);transition:stroke-dashoffset .6s}
 .ring.done .prog{stroke:var(--good)}
 .ring .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.ring .t{font-family:var(--display);font-weight:800;font-size:38px;line-height:1}
+.ring .t{font-family:var(--display);font-weight:800;font-size:32px;line-height:1}
 .ring .s{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
 .miles{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
 .mile{font-family:var(--display);font-weight:700;font-size:14px;border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--muted)}
@@ -91,6 +91,9 @@ input[type=number]{width:120px}
 .seg button{border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:12px;font-family:var(--display);font-weight:800;font-size:22px;text-transform:uppercase;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px}
 .seg button svg{width:24px;height:24px}
 .seg button.on.run{border-color:var(--run);color:var(--run);background:color-mix(in srgb,var(--run) 12%,var(--bg))}
+.seg button.on.hockey{border-color:var(--hockey);color:var(--hockey);background:color-mix(in srgb,var(--hockey) 12%,var(--bg))}
+.seg button.on.bike{border-color:var(--bike);color:var(--bike);background:color-mix(in srgb,var(--bike) 12%,var(--bg))}
+.seg.four button{font-size:19px;padding:11px 6px}
 .seg button.on.lift{border-color:var(--lift);color:var(--lift);background:color-mix(in srgb,var(--lift) 12%,var(--bg))}
 .mins{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
 .mins button{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 0;font-family:var(--display);font-weight:700;font-size:19px}
@@ -131,8 +134,10 @@ input[type=number]{width:120px}
 .reward{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:10px;font-size:14px}
 
 /* icons color */
-.i-run{color:var(--run)} .i-lift{color:var(--lift)}
-.i-run svg,.i-lift svg{width:18px;height:18px}
+.i-run{color:var(--run)} .i-lift{color:var(--lift)} .i-hockey{color:var(--hockey)} .i-bike{color:var(--bike)}
+.i-run svg,.i-lift svg,.i-hockey svg,.i-bike svg{width:18px;height:18px}
+.fastweigh{border-top:1px solid var(--line);margin-top:16px;padding-top:14px}
+.progress-block{border-top:1px solid var(--line);margin-top:16px;padding-top:14px}
 .planned{opacity:.35}
 .missed{opacity:.5;color:var(--bad)!important}
 
@@ -196,6 +201,15 @@ input[type=number]{width:120px}
 .plan label{display:grid;gap:4px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
 
 
+/* 24h mega fast */
+.mega-txt{color:var(--bike)}
+.mile.mega{display:inline-flex;align-items:center;gap:4px;border-color:color-mix(in srgb,var(--bike) 55%,var(--line));color:var(--bike)}
+.mile.mega svg{width:12px;height:12px}
+.mile.mega b{font-weight:800}
+.mile.mega.on{background:var(--bike);color:#1F1A04;border-color:var(--bike)}
+.ring.mega .prog{stroke:var(--bike)}
+.fb.mega{background:linear-gradient(90deg,var(--bike),var(--good))}
+.tag.mega{color:var(--bike);border-color:var(--bike)}
 /* recovery rings */
 .rings{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 10px}
 @media (min-width:560px) and (max-width:819px){.rings{grid-template-columns:repeat(4,1fr)}}
@@ -249,6 +263,9 @@ html,body{margin:0}
 const IC = {
   run:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="15.5" cy="4.2" r="2" fill="currentColor" stroke="none"/><path d="M8 20.5l3.2-5 3 2.3v3.7"/><path d="M11.2 15.5l1.8-7-3.6 1.5-2 3"/><path d="M13 8.5l2.6 3.2 3.4.6"/></svg>',
   lift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>',
+  hockey:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3l6.2 14.2c.3.7 1 1.1 1.7 1.1H21"/><ellipse cx="6" cy="18.5" rx="3.2" ry="1.5" fill="currentColor" stroke="none"/></svg>',
+  bike:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5L9 9h6.5l3 7.5M9 9l3 7.5h-6.5M8 6h3M15 6.5h2.5l-2 2.5"/></svg>',
+  bolt:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2L4.5 13.5h6L9.5 22l9-11.5h-6z"/></svg>',
   today:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9.5 2.5h5"/></svg>',
   cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
   trend:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 18l5-6 4 3.5 7.5-9"/><path d="M15.5 6.5H20V11"/></svg>',
@@ -258,13 +275,15 @@ const icon = (t, cls='') => `<span class="i-${t} ${cls}" style="display:inline-f
 
 /* ---------- defaults ---------- */
 const DEFAULTS = {
-  runPerMin:2, liftPerMin:4, fastMinHours:16, fastBase:30, fastPerHour:5, weighIn:10,
+  megaMult:2, runPerMin:2, liftPerMin:4, hockeyPerMin:2, bikePerMin:2, fastMinHours:16, fastBase:30, fastPerHour:5, weighIn:10,
   weeklyTarget:500, challengeBonus:25, fastsGoal:5, weighGoal:6,
   plan:{1:'lift',2:'run',3:'run',4:'lift',5:'rest',6:'run',0:'rest'},
   rewards:[{id:'r1', name:'New running shoes (example — edit in Settings)', weeks:8}],
   goals:{weightLow:195,weightHigh:200,vo2Low:48,vo2High:50,hrvLow:75,hrvHigh:85,rhrLow:40,rhrHigh:44}
 };
 const MINS = [20,30,40,50,60,70,80,90];
+const WTYPES = [['run','Run'],['lift','Lift'],['hockey','Hockey'],['bike','Bike ride']];
+const wLabel = t => (WTYPES.find(x=>x[0]===t)||[t,'Workout'])[1];
 const DOW = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MON = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
@@ -299,9 +318,16 @@ function fastPts(f){
   if(!f.end) return 0;
   const h = fastHours(f);
   if(h < st().fastMinHours) return 0;
-  return st().fastBase + Math.floor(h - st().fastMinHours) * st().fastPerHour;
+  return fastPtsFor(h);
 }
-const workoutPts = w => Math.round(w.min * (w.type==='lift' ? st().liftPerMin : st().runPerMin));
+const MEGA_H = 24;
+const megaMult = () => st().megaMult ?? 2;
+function fastPtsFor(h){
+  const base = st().fastBase + Math.floor(h - st().fastMinHours) * st().fastPerHour;
+  return h >= MEGA_H ? Math.round(base * megaMult()) : base;
+}
+const rateOf = t => t==='lift' ? st().liftPerMin : t==='hockey' ? (st().hockeyPerMin ?? 2) : t==='bike' ? (st().bikePerMin ?? 2) : st().runPerMin;
+const workoutPts = w => Math.round(w.min * rateOf(w.type));
 const activeFast = () => Object.values(S.fasts).filter(f=>!f.end).sort((a,b)=>b.start-a.start)[0] || null;
 
 function dayInfo(k){
@@ -313,7 +339,7 @@ function dayInfo(k){
   const fastHit = fasts.some(f=>fastHours(f) >= st().fastMinHours);
   const pts = fasts.reduce((s,f)=>s+fastPts(f),0) + workouts.reduce((s,w)=>s+workoutPts(w),0) + (hasWeight ? st().weighIn : 0);
   return {k, day, fasts, workouts, hasWeight, weight:day.weight, bestFast, fastHit, pts,
-    lifts:workouts.filter(w=>w.type==='lift').length, runs:workouts.filter(w=>w.type==='run').length,
+    lifts:workouts.filter(w=>w.type==='lift').length, runs:workouts.filter(w=>w.type!=='lift').length,
     garmin: day.garmin || null, plan: st().plan[parseKey(k).getDay()] || 'rest'};
 }
 function planCounts(){ const v=Object.values(st().plan); return {lift:v.filter(x=>x==='lift').length, run:v.filter(x=>x==='run').length}; }
@@ -497,22 +523,19 @@ function armOrRun(btn, fn){
 
 /* ---------- render: shared pieces ---------- */
 function quickLog(k){
-  const pts = Math.round(S.tapMin * (S.tapType==='lift'?st().liftPerMin:st().runPerMin));
+  const pts = Math.round(S.tapMin * rateOf(S.tapType));
   return `
-  <div class="seg">
-    <button class="run ${S.tapType==='run'?'on':''}" data-act="tapType" data-v="run">${IC.run}Run</button>
-    <button class="lift ${S.tapType==='lift'?'on':''}" data-act="tapType" data-v="lift">${IC.lift}Lift</button>
-  </div>
+  <div class="seg four">${WTYPES.map(([t,l])=>`<button class="${t} ${S.tapType===t?'on':''}" data-act="tapType" data-v="${t}">${IC[t]}${l}</button>`).join('')}</div>
   <div class="mins">${MINS.map(m=>`<button class="num ${S.tapMin===m?'on':''}" data-act="tapMin" data-v="${m}">${m}<small>min</small></button>`).join('')}</div>
-  <button class="btn primary block" data-act="logWorkout" data-k="${k}">Log ${S.tapType} · ${S.tapMin} min · +${pts}</button>`;
+  <button class="btn primary block" data-act="logWorkout" data-k="${k}">Log ${wLabel(S.tapType).toLowerCase()} · ${S.tapMin} min · +${pts}</button>`;
 }
 function workoutList(k){
   const w = (S.days[k]?.workouts)||[];
   if(!w.length) return '';
-  return `<div class="logs">${w.map((x,i)=>`<div class="log">${icon(x.type)}<div class="grow">${x.type==='lift'?'Lift':'Run'} · ${x.min} min${x.at?` <span class="muted">· ${fmtTime(x.at)}</span>`:''}</div><span class="pts num">+${workoutPts(x)}</span><button class="btn small ghost danger" data-act="delWorkout" data-k="${k}" data-at="${x.at}">Remove</button></div>`).join('')}</div>`;
+  return `<div class="logs">${w.map((x,i)=>`<div class="log">${icon(x.type)}<div class="grow">${wLabel(x.type)} · ${x.min} min${x.at?` <span class="muted">· ${fmtTime(x.at)}</span>`:''}</div><span class="pts num">+${workoutPts(x)}</span><button class="btn small ghost danger" data-act="delWorkout" data-k="${k}" data-at="${x.at}">Remove</button></div>`).join('')}</div>`;
 }
 function stripIcon(d, isFuture){
-  if(d.lifts || d.runs) return (d.lifts?icon('lift'):'') + (d.runs?icon('run'):'');
+  if(d.workouts.length) return [...new Set(d.workouts.map(w=>w.type))].slice(0,2).map(t=>icon(t)).join('');
   if(d.plan==='rest') return '<span class="muted" style="font-size:12px">rest</span>';
   return icon(d.plan, isFuture || d.k===todayKey() ? 'planned' : missCls(d.k));
 }
@@ -568,16 +591,32 @@ function viewToday(){
   return `
   <div class="grid two">
     <section class="card">
-      <div class="label"><span>Fast</span><span class="muted">${st().fastMinHours}h+ wins</span></div>
+      <div class="label"><span>Fast</span><span class="muted">${st().fastMinHours}h+ wins · <span class="mega-txt">24h = ${megaMult()}× pts</span></span></div>
       ${f ? fastLive(f) : `
         <h2 class="big">Eating window open</h2>
         <p class="muted" style="margin:6px 0 14px">${lastDone ? `Last fast: <b class="num" style="color:var(--text)">${hm(fastHours(lastDone))}</b>, ended ${fmtDayShort(keyOf(new Date(lastDone.end)))} at ${fmtTime(lastDone.end)} ${fastHours(lastDone)>=st().fastMinHours?'<span class="tag hit">Won</span>':'<span class="tag miss">Short</span>'}` : 'Tap start when you finish your last meal.'}</p>
         <button class="btn primary block" data-act="startFast">Start fast</button>`}
+      <div class="fastweigh">
+        <div class="label"><span>Weigh-in</span><span class="muted num">+${st().weighIn} pts</span></div>
+        ${weightForm(k)}
+      </div>
     </section>
 
-    <section class="card">${recoveryCard()}</section>
-
-    <section class="card">${scoreboard(k)}</section>
+    <section class="card">
+      ${scoreboard(k)}
+      <div class="progress-block">
+        <div class="label"><span>Progress</span><span class="muted num">Level ${h.level}</span></div>
+        <div class="stats">
+          <div class="stat"><b class="num">${h.won}</b><span>Weeks won</span></div>
+          <div class="stat"><b class="num">${h.streak}</b><span>Win streak</span></div>
+          <div class="stat"><b class="num">${h.level}</b><span>Level</span></div>
+        </div>
+        <div class="muted num" style="font-size:13px;margin-top:10px">${h.xp} / 1000 XP to level ${h.level+1}</div>
+        <div class="xp"><i style="width:${h.xp/10}%"></i></div>
+        ${nextReward ? `<div class="reward"><span>Next reward: <b>${esc(nextReward.name)}</b></span><span class="num muted">${h.won}/${nextReward.weeks} weeks</span></div><div class="xp"><i style="width:${Math.min(100,h.won/nextReward.weeks*100)}%;background:var(--accent)"></i></div>` : ''}
+        ${earned.length ? `<div class="reward"><span class="muted">Earned: ${earned.map(r=>esc(r.name)).join(', ')}</span></div>` : ''}
+      </div>
+    </section>
 
     <section class="card">
       <div class="label"><span>Quick log</span><span class="${planDone?'tag hit':'tag'}">${planTxt}${d.plan!=='rest'&&planDone?' ✓':''}</span></div>
@@ -585,35 +624,21 @@ function viewToday(){
       ${workoutList(k)}
     </section>
 
-    <section class="card">
-      <div class="label"><span>Weigh-in</span><span class="muted num">+${st().weighIn} pts</span></div>
-      ${weightForm(k)}
-      <div style="height:18px"></div>
-      <div class="label"><span>Progress</span><span class="muted num">Level ${h.level}</span></div>
-      <div class="stats">
-        <div class="stat"><b class="num">${h.won}</b><span>Weeks won</span></div>
-        <div class="stat"><b class="num">${h.streak}</b><span>Win streak</span></div>
-        <div class="stat"><b class="num">${h.level}</b><span>Level</span></div>
-      </div>
-      <div class="muted num" style="font-size:13px;margin-top:10px">${h.xp} / 1000 XP to level ${h.level+1}</div>
-      <div class="xp"><i style="width:${h.xp/10}%"></i></div>
-      ${nextReward ? `<div class="reward"><span>Next reward: <b>${esc(nextReward.name)}</b></span><span class="num muted">${h.won}/${nextReward.weeks} weeks</span></div><div class="xp"><i style="width:${Math.min(100,h.won/nextReward.weeks*100)}%;background:var(--accent)"></i></div>` : ''}
-      ${earned.length ? `<div class="reward"><span class="muted">Earned: ${earned.map(r=>esc(r.name)).join(', ')}</span></div>` : ''}
-    </section>
+    <section class="card">${recoveryCard()}</section>
   </div>`;
 }
 function fastLive(f){
   const hrs = fastHours(f), target = st().fastMinHours, pct = Math.min(1, hrs/target), C = 2*Math.PI*54;
-  const miles = [target, target+2, target+4];
+  const miles = [target, target+2, target+4].filter(m=>m<MEGA_H);
   return `
   <div class="fast">
-    <div class="ring ${hrs>=target?'done':''}" id="ring">
+    <div class="ring ${hrs>=target?'done':''} ${hrs>=MEGA_H?'mega':''}" id="ring">
       <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="54" stroke-width="10" fill="none"/><circle class="prog" id="ringProg" cx="60" cy="60" r="54" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-pct)}"/></svg>
       <div class="mid"><div class="t num" id="fastClock">${clock(hrs)}</div><div class="s">Fasting</div></div>
     </div>
     <div>
       <div class="muted">Started ${fmtDayShort(keyOf(new Date(f.start)))}, ${fmtTime(f.start)}</div>
-      <div class="miles" id="miles">${miles.map(m=>`<span class="mile ${hrs>=m?'on':''}">${m}h</span>`).join('')}</div>
+      <div class="miles" id="miles">${miles.map(m=>`<span class="mile ${hrs>=m?'on':''}" data-h="${m}">${m}h</span>`).join('')}<span class="mile mega ${hrs>=MEGA_H?'on':''}" data-h="${MEGA_H}">${IC.bolt}24h <b>${megaMult()}×</b></span></div>
       <div class="muted num" id="fastGoalTxt" style="font-size:14px;margin-bottom:12px">${goalText(hrs)}</div>
       <div class="row">
         <button class="btn primary" data-act="endFast">End fast</button>
@@ -624,7 +649,14 @@ function fastLive(f){
   </div>`;
 }
 const clock = h => { const s=Math.max(0,Math.floor(h*3600)); return `${Math.floor(s/3600)}:${pad(Math.floor(s/60)%60)}:${pad(s%60)}`; };
-function goalText(h){ const t=st().fastMinHours; if(h<t) return `${hm(t-h)} to a winning fast`; const p = st().fastBase + Math.floor(h-t)*st().fastPerHour; return `Won. Worth +${p} pts if you end now`; }
+function goalText(h){
+  const t=st().fastMinHours;
+  if(h<t) return `${hm(t-h)} to a winning fast`;
+  const p = fastPtsFor(h);
+  if(h>=MEGA_H) return `24-hour fast! ${megaMult()}× points: +${p} if you end now`;
+  const megaP = fastPtsFor(MEGA_H);
+  return `Won, worth +${p} now. ${hm(MEGA_H-h)} to 24h for +${megaP}`;
+}
 function weightForm(k){
   const d = S.days[k]||{}; const w = d.weight;
   const prev = recentWeights(k);
@@ -650,8 +682,7 @@ function viewCal(){
 }
 function cellIcons(d, tk){
   let s='';
-  for(let i=0;i<d.lifts;i++) s+=icon('lift');
-  for(let i=0;i<d.runs;i++) s+=icon('run');
+  for(const w of d.workouts) s+=icon(w.type);
   if(!d.lifts && !d.runs && d.plan!=='rest') if(d.k>=tk || d.k>=firstKey()) s+=icon(d.plan, d.k>=tk ? 'planned' : 'missed');
   return s;
 }
@@ -659,7 +690,7 @@ function fastClass(d, tk){
   const f = activeFast();
   if(d.k===tk && f && !d.fasts.length) return 'live';
   if(!d.fasts.length) return '';
-  return d.fastHit ? 'hit' : 'miss';
+  return d.bestFast>=MEGA_H ? 'mega' : d.fastHit ? 'hit' : 'miss';
 }
 function calMonth(){
   const c = parseKey(S.cursor), first = new Date(c.getFullYear(), c.getMonth(), 1), tk = todayKey();
@@ -681,7 +712,8 @@ function calMonth(){
   <div class="row muted" style="font-size:12px;margin-top:12px;gap:14px">
     <span class="row" style="gap:6px"><span class="fb hit" style="width:18px;height:4px;border-radius:4px;display:inline-block"></span>Fast won</span>
     <span class="row" style="gap:6px"><span class="fb miss" style="width:18px;height:4px;border-radius:4px;display:inline-block"></span>Fast short</span>
-    <span class="row" style="gap:4px">${icon('lift')}Lift</span><span class="row" style="gap:4px">${icon('run')}Run</span>
+    <span class="row" style="gap:6px"><span class="fb mega" style="width:18px;height:4px;border-radius:4px;display:inline-block"></span>24h fast</span>
+    <span class="row" style="gap:4px">${icon('lift')}Lift</span><span class="row" style="gap:4px">${icon('run')}Run</span><span class="row" style="gap:4px">${icon('hockey')}Hockey</span><span class="row" style="gap:4px">${icon('bike')}Bike</span>
     <span class="row" style="gap:4px">${icon('lift','planned')}Planned</span><span class="row" style="gap:4px">${icon('run','missed')}Missed</span>
   </div>`;
 }
@@ -693,7 +725,7 @@ function calWeek(){
     return `<button class="wrow ${d.k===tk?'today':''}" data-act="openDay" data-k="${d.k}">
       <div class="d num">${DOW[dd.getDay()]}<small>${MON[dd.getMonth()].slice(0,3)} ${dd.getDate()}</small></div>
       <div class="mid">
-        ${d.fasts.length?`<span class="tag ${d.fastHit?'hit':'miss'} num">Fast ${hm(d.bestFast)}</span>`:''}
+        ${d.fasts.length?`<span class="tag ${d.bestFast>=MEGA_H?'mega':d.fastHit?'hit':'miss'} num">Fast ${hm(d.bestFast)}${d.bestFast>=MEGA_H?' · 2×':''}</span>`:''}
         ${d.hasWeight?`<span class="num">${d.weight.toFixed(1)} lbs</span>`:''}
         ${d.workouts.map(w=>`<span class="num">${icon(w.type)} ${w.min}m</span>`).join('')}
         ${!d.workouts.length&&d.plan!=='rest'?`<span class="muted">${icon(d.plan, d.k>=tk?'planned':missCls(d.k))} ${d.k>=tk?'planned':(d.k<firstKey()?'planned':'missed')}</span>`:''}
@@ -720,7 +752,7 @@ function calDay(){
       ${f && k===todayKey() ? `<p class="muted" style="margin:0 0 10px">A fast is running now (${hm(fastHours(f))}). End it from Today.</p>`:''}
       ${fasts.length ? `<div class="form">${fasts.map(x=>`
         <div class="fastedit">
-          <div class="row" style="justify-content:space-between"><b class="num">${hm(fastHours(x))}</b>${fastHours(x)>=st().fastMinHours?`<span class="tag hit num">Won +${fastPts(x)}</span>`:'<span class="tag miss">Short</span>'}</div>
+          <div class="row" style="justify-content:space-between"><b class="num">${hm(fastHours(x))}</b>${fastHours(x)>=MEGA_H?`<span class="tag mega num">24h · ${megaMult()}× +${fastPts(x)}</span>`:fastHours(x)>=st().fastMinHours?`<span class="tag hit num">Won +${fastPts(x)}</span>`:'<span class="tag miss">Short</span>'}</div>
           <label>Started<input type="datetime-local" id="fs-${x.id}" value="${toLocalInput(x.start)}"></label>
           <label>Ended<input type="datetime-local" id="fe-${x.id}" value="${toLocalInput(x.end)}"></label>
           <div class="row"><button class="btn small" data-act="saveFast" data-id="${x.id}">Save times</button><button class="btn small ghost danger" data-act="delFast" data-id="${x.id}">Delete</button></div>
@@ -799,10 +831,13 @@ function viewSettings(){
     <section class="card form">
       <div class="label"><span>Points</span></div>
       ${num('s-lift','Lift, pts per minute',s.liftPerMin,0.5)}
-      ${num('s-run','Run / cardio, pts per minute',s.runPerMin,0.5)}
+      ${num('s-run','Run, pts per minute',s.runPerMin,0.5)}
+      ${num('s-hockey','Hockey, pts per minute',s.hockeyPerMin ?? 2,0.5)}
+      ${num('s-bike','Bike ride, pts per minute',s.bikePerMin ?? 2,0.5)}
       ${num('s-fmin','Winning fast, minimum hours',s.fastMinHours)}
       ${num('s-fbase','Winning fast, points',s.fastBase)}
       ${num('s-fhr','Bonus per extra hour fasted',s.fastPerHour)}
+      ${num('s-mega','24h+ fast points multiplier',s.megaMult ?? 2,0.5)}
       ${num('s-weigh','Daily weigh-in, points',s.weighIn)}
       ${num('s-target','Weekly target',s.weeklyTarget,10)}
       ${num('s-bonus','Bonus per weekly challenge',s.challengeBonus)}
@@ -874,7 +909,8 @@ setInterval(()=>{
   document.getElementById('ringProg')?.setAttribute('stroke-dashoffset', C*(1-Math.min(1,h/t)));
   document.getElementById('ring')?.classList.toggle('done', h>=t);
   const g = document.getElementById('fastGoalTxt'); if(g) g.textContent = goalText(h);
-  document.querySelectorAll('#miles .mile').forEach((m,i)=>m.classList.toggle('on', h>=[t,t+2,t+4][i]));
+  document.querySelectorAll('#miles .mile').forEach(m=>m.classList.toggle('on', h>=+m.dataset.h));
+  document.getElementById('ring')?.classList.toggle('mega', h>=MEGA_H);
 }, 1000);
 
 /* ---------- events ---------- */
@@ -893,7 +929,7 @@ document.addEventListener('click', e => {
     case 'delWorkout': armOrRun(b, ()=>{ commit({t:'wdel', k, at:+b.dataset.at}); render(); }); break;
     case 'saveWeight': { const v=parseFloat(val('w-'+k)); if(!isFinite(v)||v<50||v>600){ toast('Enter your weight in lbs'); break; } scoring(()=>setDay(k,{weight:Math.round(v*10)/10})); break; }
     case 'startFast': if(activeFast()) break; putFast({id:uid(), start:Date.now(), end:null}); render(); toast('Fast started'); break;
-    case 'endFast': { const f=activeFast(); if(!f) break; const h=fastHours(f); scoring(()=>putFast({...f, end:Date.now()})); if(h<st().fastMinHours) toast(`Fast ended at ${hm(h)}`); break; }
+    case 'endFast': { const f=activeFast(); if(!f) break; const h=fastHours(f); scoring(()=>putFast({...f, end:Date.now()})); if(h<st().fastMinHours) toast(`Fast ended at ${hm(h)}`); else if(h>=MEGA_H){ toast(`24h fast! ${megaMult()}× points: +${fastPtsFor(h)}`); if(!document.getElementById('winBox')) confetti(); } break; }
     case 'toggleEditStart': { const el=document.getElementById('editStart'); el.hidden=!el.hidden; break; }
     case 'saveStart': { const f=activeFast(); const v=fromLocalInput(val('fastStartInput')); if(!f||!v||v>Date.now()){ toast('Pick a start time in the past'); break; } putFast({...f,start:v}); render(); toast('Start time updated'); break; }
     case 'addFast': { const end=parseKey(k); end.setHours(12,0,0,0); const start=end.getTime()-16*36e5; scoring(()=>putFast({id:uid(), start, end:end.getTime()})); break; }
@@ -924,7 +960,7 @@ document.addEventListener('click', e => {
     case 'ghDisconnect': armOrRun(b, ()=>{ GH.cfg=null; LS.set('gh', null); setStatus('local'); render(); toast('Disconnected'); }); break;
     case 'saveSettings': {
       const s = S.settings;
-      Object.assign(s, {liftPerMin:numv('s-lift',s.liftPerMin), runPerMin:numv('s-run',s.runPerMin), fastMinHours:numv('s-fmin',s.fastMinHours), fastBase:numv('s-fbase',s.fastBase), fastPerHour:numv('s-fhr',s.fastPerHour), weighIn:numv('s-weigh',s.weighIn), weeklyTarget:numv('s-target',s.weeklyTarget), challengeBonus:numv('s-bonus',s.challengeBonus), fastsGoal:numv('s-fgoal',s.fastsGoal), weighGoal:numv('s-wgoal',s.weighGoal)});
+      Object.assign(s, {liftPerMin:numv('s-lift',s.liftPerMin), runPerMin:numv('s-run',s.runPerMin), hockeyPerMin:numv('s-hockey',s.hockeyPerMin ?? 2), bikePerMin:numv('s-bike',s.bikePerMin ?? 2), fastMinHours:numv('s-fmin',s.fastMinHours), fastBase:numv('s-fbase',s.fastBase), fastPerHour:numv('s-fhr',s.fastPerHour), megaMult:numv('s-mega',s.megaMult ?? 2), weighIn:numv('s-weigh',s.weighIn), weeklyTarget:numv('s-target',s.weeklyTarget), challengeBonus:numv('s-bonus',s.challengeBonus), fastsGoal:numv('s-fgoal',s.fastsGoal), weighGoal:numv('s-wgoal',s.weighGoal)});
       [0,1,2,3,4,5,6].forEach(d=>{ s.plan[d]=val('p-'+d)||s.plan[d]; });
       s.goals = {weightLow:numv('g-wl',s.goals.weightLow), weightHigh:numv('g-wh',s.goals.weightHigh), vo2Low:numv('g-vl',s.goals.vo2Low), vo2High:numv('g-vh',s.goals.vo2High), hrvLow:numv('g-hl',s.goals.hrvLow), hrvHigh:numv('g-hh',s.goals.hrvHigh), rhrLow:numv('g-rl',s.goals.rhrLow), rhrHigh:numv('g-rh',s.goals.rhrHigh)};
       saveSettings(); render(); toast('Settings saved'); break;
